@@ -28,7 +28,7 @@ module_t *modules_get(int id)
 {
     if (id < 0 || id >= modules_count())
     {
-        return NULL;
+        return nullptr;
     }
     return &_modules[id];
 }
@@ -37,7 +37,7 @@ void modules_set_value(int id, uint8_t value)
 {
     value = !(!value);
     module_t *module = modules_get(id);
-    if (module == NULL)
+    if (module == nullptr)
     {
         return;
     }

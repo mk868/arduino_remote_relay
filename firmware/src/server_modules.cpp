@@ -24,7 +24,7 @@ static void send_error404(Print &res)
 void send_body_module(Print &res, uint8_t id)
 {
     module_t *module = modules_get(id);
-    if (module == NULL)
+    if (module == nullptr)
     {
         res.print("NULL");
         return;
@@ -49,7 +49,7 @@ void send_body_list(Print &res)
     res.print(F("]"));
 }
 
-void server_modules_handler(server_request_t req, Print &res)
+void server_modules_handler(const server_request_t& req, Print &res)
 {
     if (req.path.equals(F("/modules")))
     {

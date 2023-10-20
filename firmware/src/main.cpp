@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <SPI.h>
 #include "server.h"
 #include "server_modules.h"
 #include "store.h"
