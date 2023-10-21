@@ -18,6 +18,8 @@ void send_body_module(Print &res, module_t * module) {
     res.print(module->name);
     res.print(F("\",\"value\": "));
     res.print(module->value);
+    res.print(F(",\"initialValue\": "));
+    res.print(module->initial_value);
     res.print('}');
 }
 
@@ -66,6 +68,18 @@ void server_modules_handler(const server_request_t& req, Print &res) {
                     Serial.print("Update value: ");
                     Serial.println(value);
                     modules_set_value(module, value == '1');
+                }
+
+                const char *initial_value_query = "?initialValue=";
+                const uint8_t initial_value_query_len = strlen(initial_value_query);
+
+                if (str_prefix(req.path + root_path_len + path_separator_len + module_name_len, initial_value_query)) {
+                    char value = req.path[root_path_len + path_separator_len + module_name_len +
+                                          initial_value_query_len];
+                    Serial.print("Initial value: ");
+                    Serial.println(value);
+                    modules_set_initial_value(module, value == '1');
+                    store_set_bool(module->name, value == '1');
                 }
 
                 send_header_200(res);

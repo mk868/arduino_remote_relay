@@ -29,6 +29,22 @@ IPAddress store_get_ip() {
     return address;
 }
 
+bool store_get_bool(const char * path) {
+    if (!SD.exists(path)) {
+        return false;
+    }
+    File file = SD.open(path);
+    int ch = file.read();
+    file.close();
+    return ch == '1';
+}
+
+void store_set_bool(const char * path, bool value) {
+    File file = SD.open(path, O_WRITE | O_CREAT);
+    file.write(value ? '1' : '0');
+    file.close();
+}
+
 bool store_file_exist(const char *path) {
     return SD.exists(path);
 }
