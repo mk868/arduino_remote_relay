@@ -5,8 +5,7 @@
 
 struct server_request_t
 {
-    String path;
-    String query;
+    const char* path;
 };
 
 typedef void (*server_request_handler_t)(const server_request_t &request, Print &response);

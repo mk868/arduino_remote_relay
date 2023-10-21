@@ -3,44 +3,33 @@
 #include <Arduino.h>
 
 // TODO load from config / SD
-static module_t _modules[] = {
-    {"relay1", 0, false, 7},
-    {"relay2", 0, false, 6},
-    {"relay3", 0, false, 5},
-    {"relay4", 0, false, 8}};
+module_t relay1 = {"relay1", false, false, 7};
+module_t relay2 = {"relay2", false, false, 6};
+module_t relay3 = {"relay3", false, false, 5};
+module_t relay4 = {"relay4", false, false, 8};
 
-void modules_init()
-{
-    for (int i = 0; i < modules_count(); i++)
-    {
-        module_t module = _modules[i];
-        digitalWrite(module.pin, module.negated_value);
-        pinMode(module.pin, OUTPUT);
+static module_t* _modules[]={
+        &relay1,
+        &relay2,
+        &relay3,
+        &relay4,
+        nullptr
+};
+
+void modules_init() {
+    for (int i = 0; _modules[i]; i++) {
+        auto phy_module = _modules[i];
+        digitalWrite(phy_module->pin, phy_module->negated_value);
+        pinMode(phy_module->pin, OUTPUT);
     }
 }
 
-int modules_count()
+module_t **modules_get_all()
 {
-    return sizeof(_modules) / sizeof(module_t);
+    return _modules;
 }
 
-module_t *modules_get(int id)
-{
-    if (id < 0 || id >= modules_count())
-    {
-        return nullptr;
-    }
-    return &_modules[id];
-}
-
-void modules_set_value(int id, uint8_t value)
-{
-    value = !(!value);
-    module_t *module = modules_get(id);
-    if (module == nullptr)
-    {
-        return;
-    }
+void modules_set_value(module_t* module, bool value) {
     module->value = value;
     digitalWrite(module->pin, value ^ module->negated_value);
 }

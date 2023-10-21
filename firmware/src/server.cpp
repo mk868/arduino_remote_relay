@@ -7,14 +7,14 @@
 static EthernetServer server(SERVER_PORT);
 static server_request_handler_t request_handler = nullptr;
 
-bool server_init(const IPAddress& address)
-{
+static const uint8_t MAX_PATH_LEN = 30;
+
+bool server_init(const IPAddress& address) {
     EthernetClass::init(10);
-    EthernetClass::begin((uint8_t *)ETH_MAC, address);
+    EthernetClass::begin((uint8_t *) ETH_MAC, address);
 
     // Check for Ethernet hardware present
-    if (EthernetClass::hardwareStatus() == EthernetNoHardware)
-    {
+    if (EthernetClass::hardwareStatus() == EthernetNoHardware) {
         Serial.println(F("Ethernet shield was not found."));
         return false;
     }
@@ -24,50 +24,28 @@ bool server_init(const IPAddress& address)
     return true;
 }
 
-void server_begin()
-{
+void server_begin() {
     server.begin();
 }
 
-void server_loop()
-{
+void server_loop() {
     // listen for incoming clients
     EthernetClient client = server.available();
-    if (!client)
-    {
+    if (!client) {
         return;
     }
-    client.readStringUntil(' ');
-    String path = client.readStringUntil(' ');
-    // get query from path
-    String query;
-    if (path.indexOf('?') > 0)
-    {
-        query = path.substring(path.indexOf('?') + 1);
-        path = path.substring(0, path.indexOf('?'));
-    }
-    // remove double '/'
-    while (path.indexOf("//") >= 0)
-    {
-        path.replace("//", "/");
-    }
-    // remove '/' at the end of path
-    if (path.endsWith("/"))
-    {
-        path = path.substring(0, path.length() - 1);
-    }
-    Serial.println(path);
-    Serial.println(query);
+    char path_buffer[MAX_PATH_LEN];
+    client.readBytesUntil(' ', path_buffer, sizeof(path_buffer) - 1); // read method
+    auto size = client.readBytesUntil(' ', path_buffer, sizeof(path_buffer) - 1); // read path
+    path_buffer[size] = 0;
 
-    while (client.read() != -1)
-    {
+    while (client.read() != -1) {
     }
 
-    if (request_handler != nullptr)
-    {
-        server_request_t req;
-        req.path = path;
-        req.query = query;
+    if (request_handler != nullptr) {
+        server_request_t req{
+                .path = path_buffer,
+        };
         request_handler(req, client);
     }
 
@@ -77,7 +55,6 @@ void server_loop()
     Serial.println(F("client disconnected"));
 }
 
-void server_set_request_handler(server_request_handler_t cb)
-{
+void server_set_request_handler(server_request_handler_t cb) {
     request_handler = cb;
 }

@@ -9,7 +9,7 @@ static void error_loop();
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(SERIAL_SPEED);
   while (!Serial)
   {
   }
@@ -45,7 +45,7 @@ void loop()
 static void error_loop()
 {
   pinMode(ERROR_LED_PIN, OUTPUT);
-  while (1)
+  while (true)
   {
     digitalWrite(ERROR_LED_PIN, 1);
     delay(1000);

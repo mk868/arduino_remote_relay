@@ -1,87 +1,79 @@
+#include <Arduino.h>
 #include "server_modules.h"
 
-#include <Arduino.h>
-
+#include "common.h"
 #include "modules.h"
+#include "store.h"
 
-void send_header_200(Print &res)
-{
-    res.println(F("HTTP/1.1 200 OK"));
-    res.println(F("Content-Type: application/json"));
-    res.println(F("Connection: close"));
-    res.println();
+void send_header_200(Print &res) {
+    store_read_file("/200", res);
 }
 
-static void send_error404(Print &res)
-{
-    res.println(F("HTTP/1.1 404 Not Found"));
-    res.println(F("Content-Type: application/json"));
-    res.println(F("Connection: close"));
-    res.println();
-    res.print(F("{\"error\":\"404 Not Found\"}"));
+static void send_error404(Print &res) {
+    store_read_file("/404", res);
 }
 
-void send_body_module(Print &res, uint8_t id)
-{
-    module_t *module = modules_get(id);
-    if (module == nullptr)
-    {
-        res.print("NULL");
-        return;
-    }
-
+void send_body_module(Print &res, module_t * module) {
     res.print(F("{\"name\": \""));
     res.print(module->name);
     res.print(F("\",\"value\": "));
     res.print(module->value);
-    res.print(F("}"));
+    res.print('}');
 }
 
-void send_body_list(Print &res)
-{
-    res.print(F("["));
-    int count = modules_count();
-    for (int i = 0; i < count; i++)
-    {
-        send_body_module(res, i);
-        res.print(i < (count - 1) ? "," : "");
+void send_body_list(Print &res) {
+    auto modules = modules_get_all();
+    res.print('[');
+    for (int i = 0; modules[i]; i++) {
+        send_body_module(res, modules[i]);
+        res.print(modules[i + 1] ? ',' : ']');
     }
-    res.print(F("]"));
 }
 
-void server_modules_handler(const server_request_t& req, Print &res)
-{
-    if (req.path.equals(F("/modules")))
-    {
-        send_header_200(res);
-        send_body_list(res);
-        return;
-    }
+void server_modules_handler(const server_request_t& req, Print &res) {
+    const char *root_path = "/modules";
+    const uint8_t root_path_len = strlen(root_path);
 
-    for (int i = 0; i < modules_count(); i++)
-    {
-        module_t *module = modules_get(i);
-        String module_path = String(F("/modules/")) + module->name;
-
-        if (!req.path.equals(module_path))
-        {
-            continue;
-        }
-
-        int query_value_pos = req.query.indexOf(F("value="));
-        if (query_value_pos >= 0)
-        {
-            String value_str = req.query.substring(query_value_pos + 6);
-            value_str.trim();
-            modules_set_value(i, value_str.toInt());
+    if (str_prefix(req.path, root_path)) {
+        if (req.path[root_path_len] == '\0') {
             send_header_200(res);
-            send_body_module(res, i);
+            send_body_list(res);
             return;
         }
 
-        send_header_200(res);
-        send_body_module(res, i);
-        return;
+        const char path_separator = '/';
+        const uint8_t path_separator_len = 1;
+
+        if (req.path[root_path_len] == path_separator) {
+            auto module_all = modules_get_all();
+            for (int i = 0; module_all[i]; i++) {
+                module_t *module = module_all[i];
+
+                if (!str_prefix(req.path + root_path_len + path_separator_len, module->name)) {
+                    continue;
+                }
+                auto module_name_len = strlen(module->name);
+                if (req.path[root_path_len + path_separator_len + module_name_len] != 0 &&
+                    req.path[root_path_len + path_separator_len + module_name_len] != '?') {
+                    continue;
+                }
+
+                const char *value_query = "?value=";
+                const uint8_t value_query_len = strlen(value_query);
+
+                if (str_prefix(req.path + root_path_len + path_separator_len + module_name_len, value_query)) {
+                    char value = req.path[root_path_len + path_separator_len + module_name_len + value_query_len];
+                    Serial.print("Update value: ");
+                    Serial.println(value);
+                    modules_set_value(module, value == '1');
+                }
+
+                send_header_200(res);
+                send_body_module(res, module);
+                return;
+            }
+        }
     }
+
     send_error404(res);
 }
