@@ -78,8 +78,12 @@ void server_modules_handler(const server_request_t& req, Print &res) {
                                           initial_value_query_len];
                     Serial.print("Initial value: ");
                     Serial.println(value);
-                    modules_set_initial_value(module, value == '1');
-                    store_set_bool(module->name, value == '1');
+                    bool prev_value = module->initial_value;
+                    bool new_value = value == '1';
+                    if (prev_value != new_value) {
+                        modules_set_initial_value(module, new_value);
+                        store_set_bool(module->name, new_value);
+                    }
                 }
 
                 send_header_200(res);
