@@ -4,13 +4,11 @@
 #include <Ethernet.h>
 #include "config.h"
 
-static EthernetServer server(SERVER_PORT);
+static EthernetServer server(HTTP_SERVER_PORT);
 static server_request_handler_t request_handler = nullptr;
 
-static const uint8_t MAX_PATH_LEN = 30;
-
 bool server_init(const IPAddress& address) {
-    EthernetClass::init(10);
+    EthernetClass::init(ETH_SS_PIN);
     EthernetClass::begin((uint8_t *) ETH_MAC, address);
 
     // Check for Ethernet hardware present
@@ -34,7 +32,7 @@ void server_loop() {
     if (!client) {
         return;
     }
-    char path_buffer[MAX_PATH_LEN];
+    char path_buffer[HTTP_MAX_PATH_LEN];
     client.readBytesUntil(' ', path_buffer, sizeof(path_buffer) - 1); // read method
     auto size = client.readBytesUntil(' ', path_buffer, sizeof(path_buffer) - 1); // read path
     path_buffer[size] = 0;
