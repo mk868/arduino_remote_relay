@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "server.h"
-#include "server_modules.h"
+#include "web_handler.h"
 #include "store.h"
 #include "modules.h"
 #include "config.h"
@@ -35,7 +35,7 @@ void setup() {
     }
     modules_init();
 
-    server_set_request_handler(server_modules_handler);
+    server_set_request_handler(web_handler_handle);
     server_begin();
 }
 

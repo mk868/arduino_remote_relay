@@ -32,7 +32,7 @@ void server_loop() {
     if (!client) {
         return;
     }
-    char path_buffer[HTTP_MAX_PATH_LEN];
+    char path_buffer[HTTP_MAX_PATH_LEN + 2];
     client.readBytesUntil(' ', path_buffer, sizeof(path_buffer) - 1); // read method
     auto size = client.readBytesUntil(' ', path_buffer, sizeof(path_buffer) - 1); // read path
     path_buffer[size] = 0;

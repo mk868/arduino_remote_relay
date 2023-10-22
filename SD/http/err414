@@ -1,0 +1,5 @@
+HTTP/1.1 414 URI Too Long
+Content-Type: application/json
+Connection: close
+
+{"error":"414 URI Too Long"}
