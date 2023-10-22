@@ -4,6 +4,7 @@
 #include "config.h"
 
 static const char *file_ip = "/ip";
+static const char *store_dir = "store/";
 
 bool store_init() {
     return SD.begin(SD_CS_PIN);
@@ -29,20 +30,45 @@ IPAddress store_get_ip() {
     return address;
 }
 
-bool store_get_bool(const char * path) {
-    if (!SD.exists(path)) {
+bool store_module_get_init_value(const char *id) {
+    char buffer[20];
+    strcpy(buffer, store_dir);
+    strcat(buffer, id);
+    strcat(buffer, ".v");
+    if (!SD.exists(buffer)) {
         return false;
     }
-    File file = SD.open(path);
+    File file = SD.open(buffer);
     int ch = file.read();
     file.close();
     return ch == '1';
 }
 
-void store_set_bool(const char * path, bool value) {
-    File file = SD.open(path, O_WRITE | O_CREAT);
-    file.write(value ? '1' : '0');
-    file.close();
+void store_module_set_init_value(const char *id, bool value) {
+    char buffer[20];
+    strcpy(buffer, store_dir);
+    strcat(buffer, id);
+    strcat(buffer, ".v");
+
+    store_write_file(buffer, value ? "1" : "0", 1);
+}
+
+void store_module_get_name(const char *id, Print &res) {
+    char buffer[20];
+    strcpy(buffer, store_dir);
+    strcat(buffer, id);
+    strcat(buffer, ".n");
+
+    store_read_file(buffer, res);
+}
+
+void store_module_set_name(const char *id, const char *value) {
+    char buffer[20];
+    strcpy(buffer, store_dir);
+    strcat(buffer, id);
+    strcat(buffer, ".n");
+
+    store_write_file(buffer, value, strlen(value));
 }
 
 bool store_file_exist(const char *path) {
@@ -55,5 +81,11 @@ void store_read_file(const char *path, Print &res) {
     while ((ch = file.read()) != -1) {
         res.write((uint8_t) ch);
     }
+    file.close();
+}
+
+void store_write_file(const char *path, const char *value, uint8_t len) {
+    File file = SD.open(path, O_WRITE | O_CREAT | O_TRUNC);
+    file.write(value, len);
     file.close();
 }

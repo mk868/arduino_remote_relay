@@ -2,7 +2,7 @@
 
 typedef struct
 {
-    const char* name;
+    const char* id;
     bool value; // current value
     bool initial_value;
     bool negated_value;

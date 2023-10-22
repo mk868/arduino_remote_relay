@@ -30,7 +30,7 @@ void setup() {
     auto modules = modules_get_all();
     for (int i = 0; modules[i]; i++) {
         auto module = modules[i];
-        bool initial_value = store_get_bool(module->name);
+        bool initial_value = store_module_get_init_value(module->id);
         modules_set_initial_value(module, initial_value);
     }
     modules_init();

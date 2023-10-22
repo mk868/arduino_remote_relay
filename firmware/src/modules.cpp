@@ -3,10 +3,10 @@
 #include <Arduino.h>
 
 // TODO load from config / SD
-module_t relay1 = {"relay1", false, false, false, 7};
-module_t relay2 = {"relay2", false, false, false, 6};
-module_t relay3 = {"relay3", false, false, false, 5};
-module_t relay4 = {"relay4", false, false, false, 8};
+module_t relay1 = {"1", false, false, false, 7};
+module_t relay2 = {"2", false, false, false, 6};
+module_t relay3 = {"3", false, false, false, 5};
+module_t relay4 = {"4", false, false, false, 8};
 
 static module_t* _modules[]={
         &relay1,
