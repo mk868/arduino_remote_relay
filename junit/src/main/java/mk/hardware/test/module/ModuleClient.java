@@ -9,13 +9,22 @@ public interface ModuleClient {
   @RequestLine("GET /modules")
   List<Module> getModules();
 
-  @RequestLine("GET /modules/{module}")
-  Module getModule(@Param("module") String module);
+  @RequestLine("GET /modules/{moduleId}")
+  Module getModule(@Param("moduleId") String moduleId);
 
-  @RequestLine("GET /modules/{module}?value=1")
-  void enable(@Param("module") String module);
+  @RequestLine("GET /modules/{moduleId}?value=1")
+  void enable(@Param("moduleId") String moduleId);
 
-  @RequestLine("GET /modules/{module}?value=0")
-  void disable(@Param("module") String module);
+  @RequestLine("GET /modules/{moduleId}?value=0")
+  void disable(@Param("moduleId") String moduleId);
+
+  @RequestLine("GET /modules/{moduleId}?initialValue=1")
+  void enableByDefault(@Param("moduleId") String moduleId);
+
+  @RequestLine("GET /modules/{moduleId}?initialValue=0")
+  void disableByDefault(@Param("moduleId") String moduleId);
+
+  @RequestLine("GET /modules/{moduleId}?name={moduleId}")
+  void setName(@Param("moduleId") String moduleId, @Param("name") String name);
 
 }

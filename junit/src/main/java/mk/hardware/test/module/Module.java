@@ -2,8 +2,11 @@ package mk.hardware.test.module;
 
 public class Module {
 
+  private String id;
   private String name;
   private int value;
+  private int initialValue;
+
 
   public String getName() {
     return name;
