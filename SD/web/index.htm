@@ -1,1 +1,24 @@
- 
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="importmap">
+        {
+          "imports": {
+            "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js",
+            "axios": "https://unpkg.com/axios@1/dist/esm/axios.min.js",
+            "vue-axios": "https://unpkg.com/vue-axios@3/dist/vue-axios.esm.min.js"
+          }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+    <button @click="reload">
+        Reload
+    </button>
+    <relay-panel v-for="relay in relays" :value="relay"/>
+</div>
+<script type="module" src="js.js"></script>
+</body>
+</html>
